@@ -5,8 +5,13 @@
 #include "data.h"
 
 
-void bwc_error(const char *message) {
-    printf("bwc error: %s\n", message);
+void bwc_error(const char *message, ...) {
+    char formatted[1024];
+    va_list args;
+    va_start(args, message);
+    snprintf(formatted, 1024, message, va_arg(args, char *));
+    va_end(args);
+    printf("bwc error: %s\n", formatted);
 }
 
 
@@ -153,6 +158,39 @@ int bwc_client_pushcmd(struct bwc_client *client, struct bwc_command command) {
 }
 
 
+int bwc_client_connectrace(struct bwc_client *client, int attempts) {
+    while(attempts--) {
+        if(!bwc_client_connect(client)) {
+            return 0;
+        }
+
+        bwc_client_destroy(client);
+        Sleep(100);
+    }
+
+    return -1;
+}
+
+
+int bwc_client__ack(struct bwc_client *client) {
+    if(client->connected) {
+        bwc_error("client is already connected to a server.");
+        return -1;
+    }
+
+    int ack = 0;
+    while(ack != 0x02) {
+        unsigned int received;
+        if(!ReadFile(client->pipe, &ack, sizeof(ack), &received, NULL)) {
+            bwc_error("failed to read pipe.");
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+
 int bwc_client_connect(struct bwc_client *client) {
     if(client->connected) {
         bwc_error("client is already connected to a server.");
@@ -177,46 +215,11 @@ int bwc_client_connect(struct bwc_client *client) {
         return -1;
     }
 
-    volatile struct bwc_gamedata *data = client->data;
-
-    printf("revision: %d\n", data->revision);
-    printf("isDebug: %d\n", data->isDebug);
-    printf("instanceID: %d\n", data->instanceID);
-    printf("botAPM_noselects: %d\n", data->botAPM_noselects);
-    printf("botAPM_selects: %d\n", data->botAPM_selects);
-    printf("forceCount: %d\n", data->forceCount);
-    for(int i=0; i<data->forceCount; i++) {
-        printf("  forces[%d].name: %.*s", i, 32, data->forces[i].name);
-    }
-    printf("playerCount: %d\n", data->playerCount);
-    for(int i=0; i<data->playerCount; i++) {
-        printf("  players[%d].name: %.*s", i, 25, data->players[i].name);
+    if(bwc_client__ack(client)) {
+        return -1;
     }
 
-    printf("hasGUI: %d\n", data->hasGUI);
-    printf("hasLatCom: %d\n", data->hasLatCom);
-    printf("%zu\n", sizeof(struct bwc_gamedata));
-
-    /* wait for the server to ack us? */
-    int code = 1;
-    while(code != 2) {
-      DWORD receivedByteCount;
-        BOOL success = ReadFile(client->pipe, &code, sizeof(code),
-            &receivedByteCount, NULL);
-        if(!success) {
-            bwc_error("failed to read pipe.");
-            return -1;
-        }
-    }
-
-    char *message = "this is a test";
-    int str_index = bwc_client_pushstr(client, message, strlen(message) + 1);
-
-    struct bwc_command command;
-    command.type = 5; /* printf */
-    command.value1 = str_index;
-    command.value2 = 0;
-    bwc_client_pushcmd(client, command);
+    client->connected = 1;
 
     return 0;
 }
@@ -225,14 +228,17 @@ int bwc_client_connect(struct bwc_client *client) {
 int main(int argc, char **argv) {
     struct bwc_client client;
 
-    if(sizeof(struct bwc_gamedata) != 33017040) {
+    if(sizeof(*client.data) != 33017040) {
         bwc_error("bwc_gamedata is incorrect size.");
         return -1;
     }
 
     bwc_client_init(&client);
-    bwc_client_connect(&client);
+    if(bwc_client_connectrace(&client, 10000)) {
+        bwc_error("failed to connect after %d attempts", 10000);
+    }
     bwc_client_destroy(&client);
 
+    printf("all good.\n");
     return 0;
 }
