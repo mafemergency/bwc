@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "data.h"
+#include <bwc/bwc.h>
 
 
 void bwc_error(const char *message, ...) {

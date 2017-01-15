@@ -1,3 +1,12 @@
-An alternative to BWAPIClient written in C.
+A BWAPI-compatible client written in C.
 
-It is a work in progress and does not yet work.
+Building:
+
+premake5 vs2015
+
+/* Win32 or x64.
+   Debug or Release */
+msbuild build/bwc.sln /p:Configuration=Release;Platform=x64
+
+
+Todo: how to build with mingw and clang
