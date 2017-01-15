@@ -20,6 +20,7 @@ struct bwc_client {
     void *pipe;
     volatile struct bwc_gametable *table;
     volatile struct bwc_gamedata *data;
+    int event_offset;
 };
 
 
@@ -28,6 +29,7 @@ void bwc_client_init(struct bwc_client *client) {
     client->pipe = NULL;
     client->table = NULL;
     client->data = NULL;
+    client->event_offset = 0;
 }
 
 
@@ -52,11 +54,6 @@ void bwc_client_destroy(struct bwc_client *client) {
 
 
 int bwc_client__open_table(struct bwc_client *client) {
-    if(client->connected) {
-        bwc_error("cannot read table again; client is already connected.");
-        return -1;
-    }
-
     void *mapping = OpenFileMapping(FILE_MAP_WRITE | FILE_MAP_READ, FALSE,
         "Local\\bwapi_shared_memory_game_list");
     if(!mapping) {
@@ -77,11 +74,6 @@ int bwc_client__open_table(struct bwc_client *client) {
 
 
 int bwc_client__open_pipe(struct bwc_client *client, unsigned int process) {
-    if(client->connected) {
-        bwc_error("cannot open pipe again; client is already connected.");
-        return -1;
-    }
-
     char filename[MAX_PATH];
     snprintf(filename, MAX_PATH, "\\\\.\\pipe\\bwapi_pipe_%d", process);
 
@@ -105,11 +97,6 @@ int bwc_client__open_pipe(struct bwc_client *client, unsigned int process) {
 
 
 int bwc_client__open_mem(struct bwc_client *client, unsigned int process) {
-    if(client->connected) {
-        bwc_error("cannot open pipe again; client is already connected.");
-        return -1;
-    }
-
     char filename[MAX_PATH];
     snprintf(filename, MAX_PATH, "Local\\bwapi_shared_memory_%d", process);
 
@@ -173,11 +160,6 @@ int bwc_client_connectrace(struct bwc_client *client, int attempts) {
 
 
 int bwc_client__ack(struct bwc_client *client) {
-    if(client->connected) {
-        bwc_error("client is already connected to a server.");
-        return -1;
-    }
-
     int ack = 0;
     while(ack != 0x02) {
         unsigned int received;
@@ -185,6 +167,18 @@ int bwc_client__ack(struct bwc_client *client) {
             bwc_error("failed to read pipe.");
             return -1;
         }
+    }
+
+    return 0;
+}
+
+
+int bwc_client__syn(struct bwc_client *client) {
+    int syn = 0x01;
+    unsigned int sent;
+    if(!WriteFile(client->pipe, &syn, sizeof(syn), &sent, NULL)) {
+        bwc_error("failed to write pipe.");
+        return -1;
     }
 
     return 0;
@@ -225,20 +219,77 @@ int bwc_client_connect(struct bwc_client *client) {
 }
 
 
-int main(int argc, char **argv) {
-    struct bwc_client client;
-
-    if(sizeof(*client.data) != 33017040) {
-        bwc_error("bwc_gamedata is incorrect size.");
+int bwc_client_poll(struct bwc_client *client) {
+    if(bwc_client__syn(client)) {
+        bwc_error("syn failed.");
+        client->connected = 0;
         return -1;
     }
 
-    bwc_client_init(&client);
-    if(bwc_client_connectrace(&client, 10000)) {
-        bwc_error("failed to connect after %d attempts", 10000);
+    if(bwc_client__ack(client)) {
+        bwc_error("ack failed.");
+        client->connected = 0;
+        return -1;
     }
+
+    client->event_offset = 0;
+
+    return 0;
+}
+
+
+int bwc_client_get_event(struct bwc_client *client, struct bwc_event *event) {
+    if(client->event_offset >= client->data->eventCount) {
+        return 0;
+    }
+
+    *event = client->data->events[client->event_offset];
+    client->event_offset += 1;
+
+    return 1;
+}
+
+
+static const char *bwc_event_type_str[] = {
+    "BWC_EVT_MATCHSTART",
+    "BWC_EVT_MATCHEND",
+    "BWC_EVT_MATCHFRAME",
+    "BWC_EVT_MENUFRAME",
+    "BWC_EVT_SENDTEXT",
+    "BWC_EVT_RECEIVETEXT",
+    "BWC_EVT_PLAYERLEFT",
+    "BWC_EVT_NUKEDETECT",
+    "BWC_EVT_UNITDISCOVER",
+    "BWC_EVT_UNITEVADE",
+    "BWC_EVT_UNITSHOW",
+    "BWC_EVT_UNITHIDE",
+    "BWC_EVT_UNITCREATE",
+    "BWC_EVT_UNITDESTROY",
+    "BWC_EVT_UNITMORPH",
+    "BWC_EVT_UNITRENEGADE",
+    "BWC_EVT_SAVEGAME",
+    "BWC_EVT_UNITCOMPLETE",
+    "BWC_EVT_NONE"
+};
+
+
+int main(int argc, char **argv) {
+    struct bwc_client client;
+
+    bwc_client_init(&client);
+    bwc_client_connectrace(&client, 1000);
+
+    struct bwc_event event;
+    while(client.connected) {
+        bwc_client_poll(&client);
+
+        while(bwc_client_get_event(&client, &event)) {
+            printf("<%s v1=%d v2=%d>\n",
+                bwc_event_type_str[event.type], event.v1, event.v2);
+        }
+    }
+
     bwc_client_destroy(&client);
 
-    printf("all good.\n");
     return 0;
 }
