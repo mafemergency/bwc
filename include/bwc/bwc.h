@@ -28,5 +28,6 @@
 #include "unitdata.h"
 #include "unitfinder.h"
 #include "gamedata.h"
+#include "client.h"
 
 #endif

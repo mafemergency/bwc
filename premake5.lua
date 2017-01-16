@@ -19,7 +19,7 @@ workspace "bwc"
 		}
 
 		symbols "Off"
-		optimize "Full"
+		optimize "On"
 
 	filter "configurations:Debug"
 		defines {
@@ -31,6 +31,10 @@ workspace "bwc"
 
 	filter {}
 
+	flags {
+		"C99",
+	}
+
 	basedir "."
 	location "build"
 	targetdir "build/bin"
@@ -38,7 +42,7 @@ workspace "bwc"
 
 
 project "bwc"
-	kind "ConsoleApp"
+	kind "StaticLib"
 	language "C"
 
 	includedirs {
@@ -47,4 +51,21 @@ project "bwc"
 
 	files {
 		"src/bwc/client.c"
+	}
+
+
+project "dummy"
+	kind "ConsoleApp"
+	language "C"
+
+	includedirs {
+		"include"
+	}
+
+	files {
+		"src/example/dummy.c"
+	}
+
+	links {
+		"bwc"
 	}
