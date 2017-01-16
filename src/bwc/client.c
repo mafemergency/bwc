@@ -38,18 +38,22 @@ void bwc_client_destroy(struct bwc_client *client) {
 
 bool bwc_client_connect(struct bwc_client *client, unsigned int interval, unsigned int timeout) {
     unsigned int start = GetTickCount();
+    void *table_mapping = NULL;
+    struct bwc_gametable *table = NULL;
+    void *pipe = NULL;
+    void *data_mapping = NULL;
+    void *data = NULL;
 
-    void *table_mapping;
     do {
         table_mapping = OpenFileMapping(FILE_MAP_READ, FALSE, TEXT("Local\\bwapi_shared_memory_game_list"));
         if(table_mapping) break;
         Sleep(interval);
     } while(GetTickCount() - start < timeout);
 
-    volatile struct bwc_gametable *table = MapViewOfFile(table_mapping, FILE_MAP_READ, 0, 0, 0);
+    table = MapViewOfFile(table_mapping, FILE_MAP_READ, 0, 0, 0);
     if(!table) goto error;
 
-    volatile struct bwc_gametable *table_max = table + 8;
+    struct bwc_gametable *table_max = table + 8;
     while(table < table_max) {
         if(table->serverProcessID && table->lastKeepAliveTime && table->isConnected == 0)
             break;
@@ -57,9 +61,8 @@ bool bwc_client_connect(struct bwc_client *client, unsigned int interval, unsign
     }
 
     TCHAR pipe_filename[MAX_PATH];
-    _sntprintf_s(pipe_filename, MAX_PATH, MAX_PATH, TEXT("\\\\.\\pipe\\bwapi_pipe_%d"), table->serverProcessID);
+    _sntprintf_s(pipe_filename, MAX_PATH, MAX_PATH, TEXT("\\\\.\\pipe\\bwapi_pipe_%u"), table->serverProcessID);
 
-    void *pipe;
     do {
         pipe = CreateFile(pipe_filename, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
         if(pipe && pipe != INVALID_HANDLE_VALUE) break;
@@ -67,13 +70,15 @@ bool bwc_client_connect(struct bwc_client *client, unsigned int interval, unsign
         Sleep(interval);
     } while(GetTickCount() - start < timeout);
 
-    TCHAR data_filename[MAX_PATH];
-    _sntprintf_s(data_filename, MAX_PATH, MAX_PATH, TEXT("Local\\bwapi_shared_memory_%d"), table->serverProcessID);
+    if(!pipe || pipe == INVALID_HANDLE_VALUE) goto error;
 
-    void *data_mapping = OpenFileMapping(FILE_MAP_WRITE | FILE_MAP_READ, FALSE, data_filename);
+    TCHAR data_filename[MAX_PATH];
+    _sntprintf_s(data_filename, MAX_PATH, MAX_PATH, TEXT("Local\\bwapi_shared_memory_%u"), table->serverProcessID);
+
+    data_mapping = OpenFileMapping(FILE_MAP_WRITE | FILE_MAP_READ, FALSE, data_filename);
     if(!data_mapping) goto error;
 
-    struct bwc_gamedata *data = MapViewOfFile(data_mapping, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, sizeof(struct bwc_gamedata));
+    data = MapViewOfFile(data_mapping, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, sizeof(struct bwc_gamedata));
     if(!data) goto error;
 
     int32_t ack = 0x00;
@@ -93,10 +98,10 @@ bool bwc_client_connect(struct bwc_client *client, unsigned int interval, unsign
 
 error:
     if(table_mapping) CloseHandle(table_mapping);
-    if(table) UnmapViewOfFile((void *) table);
+    if(table) UnmapViewOfFile(table);
     if(pipe && pipe != INVALID_HANDLE_VALUE) CloseHandle(pipe);
     if(data_mapping) CloseHandle(data_mapping);
-    if(data) UnmapViewOfFile((void *) data);
+    if(data) UnmapViewOfFile(data);
     return false;
 }
 

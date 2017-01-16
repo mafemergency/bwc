@@ -5,10 +5,10 @@
 
 struct bwc_client {
     int connected;
-    volatile struct bwc_event *event;
+    struct bwc_event *event;
     void *pipe;
-    volatile struct bwc_gametable *table;
-    volatile struct bwc_gamedata *data;
+    struct bwc_gametable *table;
+    struct bwc_gamedata *data;
 };
 
 void bwc_client_init(struct bwc_client *client);
