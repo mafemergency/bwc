@@ -55,4 +55,9 @@ struct bwc_event {
     int32_t v2;
 };
 
+
+inline void bwc_event_print(struct bwc_event event) {
+    printf("<%s %d %d>\n", bwc_event_str[event.type], event.v1, event.v2);
+}
+
 #endif
