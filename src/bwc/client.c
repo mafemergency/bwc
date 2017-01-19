@@ -1,6 +1,5 @@
 #include <windows.h>
 #include <tchar.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <bwc/bwc.h>
@@ -13,7 +12,6 @@ void bwc_client_init(struct bwc_client *client) {
     client->table = NULL;
     client->data = NULL;
 }
-
 
 void bwc_client_destroy(struct bwc_client *client) {
     client->connected = 0;
@@ -33,7 +31,6 @@ void bwc_client_destroy(struct bwc_client *client) {
         client->data = NULL;
     }
 }
-
 
 bool bwc_client_connect(struct bwc_client *client, unsigned int interval, unsigned int timeout) {
     void *table_mapping = NULL;
@@ -105,7 +102,6 @@ error:
     return false;
 }
 
-
 bool bwc_client_poll(struct bwc_client *client) {
     if(!bwc_client__syn(client)) {
         client->connected = 0;
@@ -122,7 +118,6 @@ bool bwc_client_poll(struct bwc_client *client) {
     return true;
 }
 
-
 bool bwc_client_getevent(struct bwc_client *client, struct bwc_event *event) {
     if(client->event < client->data->events + client->data->eventCount) {
         *event = *client->event++;
@@ -131,7 +126,6 @@ bool bwc_client_getevent(struct bwc_client *client, struct bwc_event *event) {
 
     return false;
 }
-
 
 bool bwc_client__ack(struct bwc_client *client) {
     int32_t ack = 0;
@@ -144,7 +138,6 @@ bool bwc_client__ack(struct bwc_client *client) {
 
     return true;
 }
-
 
 bool bwc_client__syn(struct bwc_client *client) {
     int32_t syn = 0x01;
