@@ -1,9 +1,9 @@
-#ifndef BWC_PLAYERDATA_H
-#define BWC_PLAYERDATA_H
+#ifndef BWC_PLAYER_H
+#define BWC_PLAYER_H
 
 #include <stdint.h>
 
-enum bwc_playerdata_type {
+enum bwc_player_type {
     BWC_PLAYER_NONE,
     BWC_PLAYER_COMPUTER,
     BWC_PLAYER_PLAYER,
@@ -20,10 +20,10 @@ enum bwc_playerdata_type {
     BWC_PLAYER_MAX
 };
 
-struct bwc_playerdata {
+struct bwc_player {
     char name[25];
     int32_t race;
-    enum bwc_playerdata_type type;
+    enum bwc_player_type type;
     int32_t force;
     int8_t isAlly[12];
     int8_t isEnemy[12];

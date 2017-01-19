@@ -24,12 +24,12 @@ void bwc_client_destroy(struct bwc_client *client) {
     }
 
     if(client->table) {
-        UnmapViewOfFile((struct bwc_gametable *) client->table);
+        UnmapViewOfFile(client->table);
         client->table = NULL;
     }
 
     if(client->data) {
-        UnmapViewOfFile((struct bwc_gamedata *) client->data);
+        UnmapViewOfFile(client->data);
         client->data = NULL;
     }
 }
@@ -77,7 +77,7 @@ bool bwc_client_connect(struct bwc_client *client, unsigned int interval, unsign
     data_mapping = OpenFileMapping(FILE_MAP_WRITE | FILE_MAP_READ, FALSE, data_filename);
     if(!data_mapping) goto error;
 
-    data = MapViewOfFile(data_mapping, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, sizeof(struct bwc_gamedata));
+    data = MapViewOfFile(data_mapping, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, sizeof(struct bwc_game));
     if(!data) goto error;
 
     int32_t ack = 0x00;

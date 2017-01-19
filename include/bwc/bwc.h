@@ -11,23 +11,23 @@
 //#define BWC_UNITTYPES_MAX 234
 #define BWC_UPGRADETYPES_MAX 63
 #define BWC_TECHTYPES_MAX 47
-#define BWC_M_MAX 3
-#define BWC_K_MAX 255
+#define BWC_MOUSE_MAX 3
+#define BWC_KEY_MAX 255
 //#define BWC_FLAG_MAX 2
 
-#include "bulletdata.h"
+#include "bullet.h"
 #include "command.h"
 #include "event.h"
-#include "forcedata.h"
+#include "force.h"
 #include "gametable.h"
 #include "position.h"
-#include "regiondata.h"
+#include "region.h"
 #include "shape.h"
 #include "unitcommand.h"
-#include "unitdata.h"
+#include "unit.h"
 #include "unitfinder.h"
-#include "playerdata.h"
-#include "gamedata.h"
+#include "player.h"
+#include "game.h"
 
 #include "client.h"
 

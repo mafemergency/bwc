@@ -1,9 +1,9 @@
-#ifndef BWC_REGIONDATA_H
-#define BWC_REGIONDATA_H
+#ifndef BWC_REGION_H
+#define BWC_REGION_H
 
 #include <stdint.h>
 
-struct bwc_regiondata {
+struct bwc_region {
     int32_t id;
     int32_t islandID;
     int32_t center_x;

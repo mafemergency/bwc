@@ -8,7 +8,7 @@ struct bwc_client {
     void *pipe;
     struct bwc_event *event;
     struct bwc_gametable *table;
-    struct bwc_gamedata *data;
+    struct bwc_game *data;
 };
 
 void bwc_client_init(struct bwc_client *client);

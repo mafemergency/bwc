@@ -1,9 +1,9 @@
-#ifndef BWC_GAMEDATA_H
-#define BWC_GAMEDATA_H
+#ifndef BWC_GAME_H
+#define BWC_GAME_H
 
 #include <stdint.h>
 
-struct bwc_gamedata {
+struct bwc_game {
     int32_t revision;
     int8_t isDebug;
 
@@ -12,17 +12,17 @@ struct bwc_gamedata {
     int32_t botAPM_selects;
 
     int32_t forceCount;
-    struct bwc_forcedata forces[5];
+    struct bwc_force forces[5];
 
     int32_t playerCount;
-    struct bwc_playerdata players[12];
+    struct bwc_player players[12];
 
     int32_t initialUnitCount;
-    struct bwc_unitdata units[10000];
+    struct bwc_unit units[10000];
 
     int32_t unitArray[1700];
 
-    struct bwc_bulletdata bullets[100];
+    struct bwc_bullet bullets[100];
 
     int32_t nukeDotCount;
     struct bwc_position nukeDots[200];
@@ -44,8 +44,8 @@ struct bwc_gamedata {
 
     int32_t mouseX;
     int32_t mouseY;
-    int8_t mouseState[BWC_M_MAX];
-    int8_t keyState[BWC_K_MAX];
+    int8_t mouseState[BWC_MOUSE_MAX];
+    int8_t keyState[BWC_KEY_MAX];
     int32_t screenX;
     int32_t screenY;
 
@@ -72,7 +72,7 @@ struct bwc_gamedata {
     uint16_t mapSplitTilesRegion2[5000];
 
     int32_t regionCount;
-    struct bwc_regiondata regions[5000];
+    struct bwc_region regions[5000];
 
     int32_t startLocationCount;
     struct bwc_position startLocations[8];

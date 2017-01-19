@@ -1,9 +1,9 @@
-#ifndef BWC_BULLETDATA_H
-#define BWC_BULLETDATA_H
+#ifndef BWC_BULLET_H
+#define BWC_BULLET_H
 
 #include <stdint.h>
 
-enum bwc_bulletdata_type {
+enum bwc_bullet_type {
     BWC_BULLET_MELEE = 0,
 
     BWC_BULLET_FUSION_CUTTER_HIT = 141,
@@ -51,10 +51,10 @@ enum bwc_bulletdata_type {
     BWC_BULLET_MAX
 };
 
-struct bwc_bulletdata {
+struct bwc_bullet {
     int32_t id;
     int32_t player;
-    enum bwc_bulletdata_type type;
+    enum bwc_bullet_type type;
     int32_t source;
     int32_t positionX;
     int32_t positionY;

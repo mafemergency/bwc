@@ -1,9 +1,9 @@
-#ifndef BWC_UNITDATA_H
-#define BWC_UNITDATA_H
+#ifndef BWC_UNIT_H
+#define BWC_UNIT_H
 
 #include <stdint.h>
 
-enum bwc_unitdata_type {
+enum bwc_unit_type {
     BWC_UNIT_TERRAN_MARINE,
     BWC_UNIT_TERRAN_GHOST,
     BWC_UNIT_TERRAN_VULTURE,
@@ -222,7 +222,7 @@ enum bwc_unitdata_type {
     BWC_UNIT_POWERUP_FLAG,
     BWC_UNIT_POWERUP_YOUNG_CHRYSALIS,
     BWC_UNIT_POWERUP_PSI_EMITTER,
-    BWC_UNIT_POWERUP_DATA_DISK,
+    BWC_UNIT_POWERUP__DISK,
     BWC_UNIT_POWERUP_KHAYDARIN_CRYSTAL,
     BWC_UNIT_POWERUP_MINERAL_CLUSTER_TYPE_1,
     BWC_UNIT_POWERUP_MINERAL_CLUSTER_TYPE_2,
@@ -242,11 +242,11 @@ enum bwc_unitdata_type {
     BWC_UNIT_MAX
 };
 
-struct bwc_unitdata {
+struct bwc_unit {
     int32_t clearanceLevel;
     int32_t id;
     int32_t player;
-    enum bwc_unitdata_type type;
+    enum bwc_unit_type type;
     int32_t positionX;
     int32_t positionY;
     double angle;
@@ -279,7 +279,7 @@ struct bwc_unitdata {
     int32_t stasisTimer;
     int32_t stimTimer;
 
-    enum bwc_unitdata_type buildType;
+    enum bwc_unit_type buildType;
     int32_t trainingQueueCount;
     int32_t trainingQueue[5];
     int32_t tech;
