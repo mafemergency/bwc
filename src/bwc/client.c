@@ -8,8 +8,8 @@
 
 void bwc_client_init(struct bwc_client *client) {
     client->connected = 0;
-    client->event = NULL;
     client->pipe = NULL;
+    client->event = NULL;
     client->table = NULL;
     client->data = NULL;
 }
@@ -17,7 +17,6 @@ void bwc_client_init(struct bwc_client *client) {
 
 void bwc_client_destroy(struct bwc_client *client) {
     client->connected = 0;
-    client->event = NULL;
 
     if(client->pipe && client->pipe != INVALID_HANDLE_VALUE) {
         CloseHandle(client->pipe);
@@ -37,12 +36,12 @@ void bwc_client_destroy(struct bwc_client *client) {
 
 
 bool bwc_client_connect(struct bwc_client *client, unsigned int interval, unsigned int timeout) {
-    unsigned int start = GetTickCount();
     void *table_mapping = NULL;
     struct bwc_gametable *table = NULL;
     void *pipe = NULL;
     void *data_mapping = NULL;
     void *data = NULL;
+    unsigned int start = GetTickCount();
 
     do {
         table_mapping = OpenFileMapping(FILE_MAP_READ, FALSE, TEXT("Local\\bwapi_shared_memory_game_list"));
@@ -89,6 +88,7 @@ bool bwc_client_connect(struct bwc_client *client, unsigned int interval, unsign
     client->pipe = pipe;
     client->table = table;
     client->data = data;
+    client->event = client->data->events;
     client->connected = true;
 
     CloseHandle(table_mapping);
@@ -107,12 +107,12 @@ error:
 
 
 bool bwc_client_poll(struct bwc_client *client) {
-    if(bwc_client__syn(client)) {
+    if(!bwc_client__syn(client)) {
         client->connected = 0;
         return false;
     }
 
-    if(bwc_client__ack(client)) {
+    if(!bwc_client__ack(client)) {
         client->connected = 0;
         return false;
     }
@@ -133,25 +133,25 @@ bool bwc_client_getevent(struct bwc_client *client, struct bwc_event *event) {
 }
 
 
-int bwc_client__ack(struct bwc_client *client) {
+bool bwc_client__ack(struct bwc_client *client) {
     int32_t ack = 0;
     while(ack != 0x02) {
         unsigned int received;
         if(!ReadFile(client->pipe, &ack, sizeof(ack), &received, NULL)) {
-            return -1;
+            return false;
         }
     }
 
-    return 0;
+    return true;
 }
 
 
-int bwc_client__syn(struct bwc_client *client) {
+bool bwc_client__syn(struct bwc_client *client) {
     int32_t syn = 0x01;
     unsigned int sent;
     if(!WriteFile(client->pipe, &syn, sizeof(syn), &sent, NULL)) {
-        return -1;
+        return false;
     }
 
-    return 0;
+    return true;
 }

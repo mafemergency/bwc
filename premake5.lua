@@ -1,71 +1,72 @@
 workspace "bwc"
-	configurations {
-		"Debug",
-		"Release",
-	}
+    configurations {
+        "Debug",
+        "Release",
+    }
 
-	platforms {
-		"x86",
-		"x86_64"
-	}
+    platforms {
+        "x86",
+        "x86_64"
+    }
 
-	filter "configurations:Release"
-		defines {
-			"NDEBUG"
-		}
+    filter "configurations:Release"
+        defines {
+            "NDEBUG"
+        }
 
-		flags {
-			"LinkTimeOptimization"
-		}
+        flags {
+            "LinkTimeOptimization"
+        }
 
-		symbols "Off"
-		optimize "On"
+        symbols "Off"
+        optimize "On"
 
-	filter "configurations:Debug"
-		defines {
-			"DEBUG"
-		}
+    filter "configurations:Debug"
+        defines {
+            "DEBUG"
+        }
 
-		symbols "On"
-		optimize "Off"
+        symbols "On"
+        optimize "Off"
 
-	filter {}
+    filter {}
 
-	flags {
-		"C99",
-	}
+    flags {
+        "C99",
+    }
 
-	basedir "."
-	location "build"
-	targetdir "build/bin"
-	objdir "build/obj"
+    basedir "."
+    location "build"
+    targetdir "build/bin"
+    objdir "build/obj"
 
 
 project "bwc"
-	kind "StaticLib"
-	language "C"
+    kind "StaticLib"
+    language "C"
 
-	includedirs {
-		"include"
-	}
+    includedirs {
+        "include"
+    }
 
-	files {
-		"src/bwc/client.c"
-	}
+    files {
+        "src/bwc/client.c",
+        "src/bwc/command.c"
+    }
 
 
 project "dummy"
-	kind "ConsoleApp"
-	language "C"
+    kind "ConsoleApp"
+    language "C"
 
-	includedirs {
-		"include"
-	}
+    includedirs {
+        "include"
+    }
 
-	files {
-		"src/example/dummy.c"
-	}
+    files {
+        "src/example/dummy.c"
+    }
 
-	links {
-		"bwc"
-	}
+    links {
+        "bwc"
+    }

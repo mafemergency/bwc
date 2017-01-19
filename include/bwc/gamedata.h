@@ -44,12 +44,12 @@ struct bwc_gamedata {
 
     int32_t mouseX;
     int32_t mouseY;
-    int8_t mouseState[M_MAX];
-    int8_t keyState[K_MAX];
+    int8_t mouseState[BWC_M_MAX];
+    int8_t keyState[BWC_K_MAX];
     int32_t screenX;
     int32_t screenY;
 
-    int8_t flags[FLAG_MAX];
+    int8_t flags[BWC_FLAG_MAX];
 
     int32_t mapWidth;
     int32_t mapHeight;
@@ -91,22 +91,22 @@ struct bwc_gamedata {
     int32_t neutral;
 
     int32_t eventCount;
-    struct bwc_event events[MAX_EVENTS];
+    struct bwc_event events[BWC_MAX_EVENTS];
 
     int32_t eventStringCount;
-    char eventStrings[MAX_EVENT_STRINGS][256];
+    char eventStrings[BWC_MAX_EVENT_STRINGS][256];
 
     int32_t stringCount;
-    char strings[MAX_STRINGS][1024];
+    char strings[BWC_MAX_STRINGS][1024];
 
     int32_t shapeCount;
-    struct bwc_shape shapes[MAX_SHAPES];
+    struct bwc_shape shapes[BWC_MAX_SHAPES];
 
     int32_t commandCount;
-    struct bwc_command commands[MAX_COMMANDS];
+    struct bwc_command commands[BWC_MAX_COMMANDS];
 
     int32_t unitCommandCount;
-    struct bwc_unitcommand unitCommands[MAX_UNIT_COMMANDS];
+    struct bwc_unitcommand unitCommands[BWC_MAX_UNIT_COMMANDS];
 
     int32_t unitSearchSize;
     struct bwc_unitfinder xUnitSearch[1700*2];

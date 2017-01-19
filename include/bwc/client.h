@@ -5,8 +5,8 @@
 
 struct bwc_client {
     int connected;
-    struct bwc_event *event;
     void *pipe;
+    struct bwc_event *event;
     struct bwc_gametable *table;
     struct bwc_gamedata *data;
 };
@@ -17,7 +17,7 @@ bool bwc_client_connect(struct bwc_client *client, unsigned int interval, unsign
 bool bwc_client_poll(struct bwc_client *client);
 bool bwc_client_getevent(struct bwc_client *client, struct bwc_event *event);
 
-int bwc_client__ack(struct bwc_client *client);
-int bwc_client__syn(struct bwc_client *client);
+bool bwc_client__ack(struct bwc_client *client);
+bool bwc_client__syn(struct bwc_client *client);
 
 #endif
