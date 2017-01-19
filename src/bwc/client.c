@@ -1,29 +1,21 @@
 #include <windows.h>
 #include <tchar.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <bwc/bwc.h>
 
-
-void bwc_client_init(struct bwc_client *client) {
-    client->connected = 0;
+void bwcInit(struct bwcClient *client) {
+    client->status = BWC_UNCONNECTED;
     client->pipe = NULL;
-    client->event = NULL;
-    client->table = NULL;
     client->data = NULL;
+    client->event = NULL;
 }
 
-void bwc_client_destroy(struct bwc_client *client) {
-    client->connected = 0;
+void bwcDestroy(struct bwcClient *client) {
+    client->status = BWC_UNCONNECTED;
+    client->event = NULL;
 
     if(client->pipe && client->pipe != INVALID_HANDLE_VALUE) {
         CloseHandle(client->pipe);
         client->pipe = NULL;
-    }
-
-    if(client->table) {
-        UnmapViewOfFile(client->table);
-        client->table = NULL;
     }
 
     if(client->data) {
@@ -32,12 +24,12 @@ void bwc_client_destroy(struct bwc_client *client) {
     }
 }
 
-bool bwc_client_connect(struct bwc_client *client, unsigned int interval, unsigned int timeout) {
+int bwcConnect(struct bwcClient *client, unsigned int interval, unsigned int timeout) {
     void *table_mapping = NULL;
-    struct bwc_gametable *table = NULL;
+    struct bwcGameTable *table = NULL;
     void *pipe = NULL;
     void *data_mapping = NULL;
-    void *data = NULL;
+    struct bwcGame *data = NULL;
     unsigned int start = GetTickCount();
 
     do {
@@ -49,7 +41,7 @@ bool bwc_client_connect(struct bwc_client *client, unsigned int interval, unsign
     table = MapViewOfFile(table_mapping, FILE_MAP_READ, 0, 0, 0);
     if(!table) goto error;
 
-    struct bwc_gametable *table_max = table + 8;
+    struct bwcGameTable *table_max = table + 8;
     while(table < table_max) {
         if(table->serverProcessID && table->lastKeepAliveTime && table->isConnected == 0)
             break;
@@ -74,7 +66,7 @@ bool bwc_client_connect(struct bwc_client *client, unsigned int interval, unsign
     data_mapping = OpenFileMapping(FILE_MAP_WRITE | FILE_MAP_READ, FALSE, data_filename);
     if(!data_mapping) goto error;
 
-    data = MapViewOfFile(data_mapping, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, sizeof(struct bwc_game));
+    data = MapViewOfFile(data_mapping, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, sizeof(struct bwcGame));
     if(!data) goto error;
 
     int32_t ack = 0x00;
@@ -83,15 +75,15 @@ bool bwc_client_connect(struct bwc_client *client, unsigned int interval, unsign
         goto error;
 
     client->pipe = pipe;
-    client->table = table;
     client->data = data;
     client->event = client->data->events;
-    client->connected = true;
+    client->status = BWC_CONNECTED;
 
     CloseHandle(table_mapping);
+    UnmapViewOfFile(table);
     CloseHandle(data_mapping);
 
-    return true;
+    return 1;
 
 error:
     if(table_mapping) CloseHandle(table_mapping);
@@ -99,52 +91,52 @@ error:
     if(pipe && pipe != INVALID_HANDLE_VALUE) CloseHandle(pipe);
     if(data_mapping) CloseHandle(data_mapping);
     if(data) UnmapViewOfFile(data);
-    return false;
+    return 0;
 }
 
-bool bwc_client_poll(struct bwc_client *client) {
-    if(!bwc_client__syn(client)) {
-        client->connected = 0;
-        return false;
+int bwcPoll(struct bwcClient *client) {
+    if(!bwcSyn(client)) {
+        client->status = BWC_LOST_CONNECTION;
+        return 0;
     }
 
-    if(!bwc_client__ack(client)) {
-        client->connected = 0;
-        return false;
+    if(!bwcAck(client)) {
+        client->status = BWC_LOST_CONNECTION;
+        return 0;
     }
 
     client->event = client->data->events;
 
-    return true;
+    return 1;
 }
 
-bool bwc_client_getevent(struct bwc_client *client, struct bwc_event *event) {
+int bwcGetEvent(struct bwcClient *client, struct bwcEvent *event) {
     if(client->event < client->data->events + client->data->eventCount) {
         *event = *client->event++;
-        return true;
+        return 1;
     }
 
-    return false;
+    return 0;
 }
 
-bool bwc_client__ack(struct bwc_client *client) {
+int bwcSyn(struct bwcClient *client) {
+    int32_t syn = 0x01;
+    unsigned int sent;
+    if(!WriteFile(client->pipe, &syn, sizeof(syn), &sent, NULL)) {
+        return 0;
+    }
+
+    return 1;
+}
+
+int bwcAck(struct bwcClient *client) {
     int32_t ack = 0;
     while(ack != 0x02) {
         unsigned int received;
         if(!ReadFile(client->pipe, &ack, sizeof(ack), &received, NULL)) {
-            return false;
+            return 0;
         }
     }
 
-    return true;
-}
-
-bool bwc_client__syn(struct bwc_client *client) {
-    int32_t syn = 0x01;
-    unsigned int sent;
-    if(!WriteFile(client->pipe, &syn, sizeof(syn), &sent, NULL)) {
-        return false;
-    }
-
-    return true;
+    return 1;
 }

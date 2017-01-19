@@ -1,12 +1,12 @@
-A BWAPI-compatible client written in C.
-
 Building:
+    premake5 vs2015
 
-premake5 vs2015
-
-/* Win32 or x64.
-   Debug or Release */
-msbuild build/bwc.sln /p:Configuration=Release;Platform=x64
+    /* Win32 or x64.
+       Debug or Release */
+    msbuild build/bwc.sln /p:Configuration=Release;Platform=x64
 
 
-Todo: how to build with mingw and clang
+Todo:
+    - all enums should have hardcoded values
+    - ensure sizes and offsets of all structs match bwapi
+    - implement a lot of missing functions and functionality

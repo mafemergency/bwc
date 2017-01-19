@@ -1,34 +1,58 @@
 #ifndef BWC_H
 #define BWC_H
 
-#define BWC_MAX_EVENTS 10000
-#define BWC_MAX_EVENT_STRINGS 1000
-#define BWC_MAX_STRINGS 20000
-#define BWC_MAX_SHAPES 20000
-#define BWC_MAX_COMMANDS 20000
-#define BWC_MAX_UNIT_COMMANDS 20000
+#ifndef BWC_BWAPI_VERSION
+    #define BWC_BWAPI_VERSION "4_1_2"
+    #define BWC_BWAPI_INCLUDE "4_1_2/data.h"
+#endif
 
-//#define BWC_UNITTYPES_MAX 234
-#define BWC_UPGRADETYPES_MAX 63
-#define BWC_TECHTYPES_MAX 47
-#define BWC_MOUSE_MAX 3
-#define BWC_KEY_MAX 255
-//#define BWC_FLAG_MAX 2
+#include BWC_BWAPI_INCLUDE
 
-#include "bullet.h"
-#include "command.h"
-#include "event.h"
-#include "force.h"
-#include "gametable.h"
-#include "position.h"
-#include "region.h"
-#include "shape.h"
-#include "unitcommand.h"
-#include "unit.h"
-#include "unitfinder.h"
-#include "player.h"
-#include "game.h"
+/* types */
+    /* client */
+typedef enum bwcConnectionStatus {
+    BWC_UNCONNECTED,
+    BWC_CONNECTED,
+    BWC_LOST_CONNECTION
+} bwcConnectionStatus;
 
-#include "client.h"
+typedef struct bwcClient {
+    int status;
+    void *pipe;
+    struct bwcGame *data;
+    struct bwcEvent *event;
+} bwcClient;
+
+/* functions */
+    /* client */
+void bwcInit(struct bwcClient *client);
+void bwcDestroy(struct bwcClient *client);
+int bwcConnect(struct bwcClient *client, unsigned int interval, unsigned int timeout);
+int bwcPoll(struct bwcClient *client);
+int bwcGetEvent(struct bwcClient *client, struct bwcEvent *event);
+int bwcSyn(struct bwcClient *client);
+int bwcAck(struct bwcClient *client);
+    /* bwc */
+int bwcAddCommand(struct bwcClient *client, struct bwcCommand command, int *index);
+int bwcAddString(struct bwcClient *client, const char *message, int *index);
+    /* command */
+int bwcSetScreenPosition(struct bwcClient *client, int x, int y);
+int bwcSetPingMinimap(struct bwcClient *client, int x, int y);
+int bwcEnableFlag(struct bwcClient *client, enum bwcFlagType flag);
+int bwcPrintf(struct bwcClient *client, const char *format, ...);
+int bwcSendText(struct bwcClient *client, int toallies, const char *format, ...);
+int bwcPauseGame(struct bwcClient *client);
+int bwcResumeGame(struct bwcClient *client);
+int bwcLeaveGame(struct bwcClient *client);
+int bwcRestartGame(struct bwcClient *client);
+int bwcSetLocalSpeed(struct bwcClient *client, int speed);
+int bwcSetLatcom(struct bwcClient *client, int enable);
+int bwcSetGui(struct bwcClient *client, int enable);
+int bwcSetFrameskip(struct bwcClient *client, int frameskip);
+int bwcSetMap(struct bwcClient *client, const char *filename);
+int bwcSetAllies(struct bwcClient *client, int player, int todo);
+int bwcSetVision(struct bwcClient *client, int player, int todo);
+int bwcSetCommandOptimizerLevel(struct bwcClient *client, int opt);
+int bwcSetRevealAll(struct bwcClient *client, int enabled);
 
 #endif

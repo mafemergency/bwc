@@ -50,6 +50,7 @@ project "bwc"
     }
 
     files {
+        "src/bwc/bwc.c",
         "src/bwc/client.c",
         "src/bwc/command.c"
     }
