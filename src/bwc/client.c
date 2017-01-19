@@ -1,6 +1,6 @@
 #include <windows.h>
 #include <tchar.h>
-#include <bwc/bwc.h>
+#include "bwc/bwc.h"
 
 void bwcInit(struct bwcClient *client) {
     client->status = BWC_UNCONNECTED;

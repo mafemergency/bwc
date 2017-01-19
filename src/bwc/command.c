@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdarg.h>
-#include <bwc/bwc.h>
+#include "bwc/bwc.h"
 
 int bwcSetScreenPosition(struct bwcClient *client, int x, int y) {
     struct bwcCommand command;
