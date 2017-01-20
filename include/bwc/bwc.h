@@ -66,12 +66,23 @@ BWCAPI int bwcSetAllies(struct bwcClient *client, int player, int todo);
 BWCAPI int bwcSetVision(struct bwcClient *client, int player, int todo);
 BWCAPI int bwcSetCommandOptimizerLevel(struct bwcClient *client, int opt);
 BWCAPI int bwcSetRevealAll(struct bwcClient *client, int enabled);
-    /* draw*/
+    /* draw */
 BWCAPI int bwcDrawRectangle(struct bwcClient *client, enum bwcCoordinateType coord, int ax, int ay, int bx, int by, int color, int solid);
 BWCAPI int bwcDrawTriangle(struct bwcClient *client, enum bwcCoordinateType coord, int ax, int ay, int bx, int by, int cx, int cy, int color, int solid);
 BWCAPI int bwcDrawCircle(struct bwcClient *client, enum bwcCoordinateType coord, int x, int y, int r, int color, int solid);
 BWCAPI int bwcDrawEllipse(struct bwcClient *client, enum bwcCoordinateType coord, int x, int y, int xrad, int yrad, int color, int solid);
 BWCAPI int bwcDrawPoint(struct bwcClient *client, enum bwcCoordinateType coord, int x, int y, int color, int solid);
 BWCAPI int bwcDrawLine(struct bwcClient *client, enum bwcCoordinateType coord, int ax, int ay, int bx, int by, int color, int solid);
+    /* state */
+BWCAPI enum bwcGameType bwcGetGameType(struct bwcClient *client);
+BWCAPI int bwcGetLatency(struct bwcClient *client);
+BWCAPI int bwcGetFrameCount(struct bwcClient *client);
+BWCAPI int bwcGetReplayFrameCount(struct bwcClient *client);
+BWCAPI int bwcGetFPS(struct bwcClient *client);
+BWCAPI double bwcGetAverageFPS(struct bwcClient *client);
+BWCAPI void bwcGetMousePosition(struct bwcClient *client, int *x, int *y);
+BWCAPI int bwcGetMouseState(struct bwcClient *client, enum bwcMouseButton button);
+BWCAPI int bwcGetKeyState(struct bwcClient *client, enum bwcKey key);
+BWCAPI void bwcGetScreenPosition(struct bwcClient *client, int *x, int *y);
 
 #endif

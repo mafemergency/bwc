@@ -76,3 +76,53 @@ int bwcAddUnitCommand(struct bwcClient *client, struct bwcUnitCommand unitcomman
     client->data->unitCommands[client->data->unitCommandCount++] = unitcommand;
     return 1;
 }
+
+enum bwcGameType bwcGetGameType(struct bwcClient *client) {
+    return client->data->gameType;
+}
+
+int bwcGetLatency(struct bwcClient *client) {
+    return client->data->latency;
+}
+
+int bwcGetFrameCount(struct bwcClient *client) {
+    return client->data->frameCount;
+}
+
+int bwcGetReplayFrameCount(struct bwcClient *client) {
+    return client->data->replayFrameCount;
+}
+
+int bwcGetFPS(struct bwcClient *client) {
+    return client->data->fps;
+}
+
+double bwcGetAverageFPS(struct bwcClient *client) {
+    return client->data->averageFPS;
+}
+
+void bwcGetMousePosition(struct bwcClient *client, int *x, int *y) {
+    if(x) *x = client->data->mouseX;
+    if(y) *y = client->data->mouseY;
+}
+
+int bwcGetMouseState(struct bwcClient *client, enum bwcMouseButton button) {
+    if(button >= 0 && button < BWC_MOUSE_MAX) {
+        return client->data->mouseState[button];
+    }
+
+    return 0;
+}
+
+int bwcGetKeyState(struct bwcClient *client, enum bwcKey key) {
+    if(key >= 0 && key < BWC_KEY_MAX) {
+        return client->data->keyState[key];
+    }
+
+    return 0;
+}
+
+void bwcGetScreenPosition(struct bwcClient *client, int *x, int *y) {
+    if(x) *x = client->data->screenX;
+    if(y) *y = client->data->screenY;
+}
