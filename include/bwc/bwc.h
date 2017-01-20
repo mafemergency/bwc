@@ -49,7 +49,7 @@ BWCAPI int bwcAddCommand(struct bwcClient *client, struct bwcCommand command, in
 BWCAPI int bwcAddUnitCommand(struct bwcClient *client, struct bwcUnitCommand unitcommand, int *index);
     /* command */
 BWCAPI int bwcSetScreenPosition(struct bwcClient *client, int x, int y);
-BWCAPI int bwcSetPingMinimap(struct bwcClient *client, int x, int y);
+BWCAPI int bwcPingMinimap(struct bwcClient *client, int x, int y);
 BWCAPI int bwcEnableFlag(struct bwcClient *client, enum bwcFlagType flag);
 BWCAPI int bwcPrintf(struct bwcClient *client, const char *format, ...);
 BWCAPI int bwcSendText(struct bwcClient *client, int toallies, const char *format, ...);

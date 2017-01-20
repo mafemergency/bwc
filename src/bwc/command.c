@@ -10,7 +10,7 @@ int bwcSetScreenPosition(struct bwcClient *client, int x, int y) {
     return bwcAddCommand(client, command, NULL);
 }
 
-int bwcSetPingMinimap(struct bwcClient *client, int x, int y) {
+int bwcPingMinimap(struct bwcClient *client, int x, int y) {
     struct bwcCommand command;
     command.type = BWC_COMMAND_PINGMINIMAP;
     command.value1 = x;
